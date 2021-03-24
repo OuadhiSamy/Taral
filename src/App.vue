@@ -6,6 +6,8 @@
 </template>
 
 <script>
+/* eslint-disable */ 
+
 import Scene from "./components/Scene";
 
 export default {
