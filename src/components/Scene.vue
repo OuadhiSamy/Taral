@@ -16,6 +16,7 @@ export default {
   name: "Scene",
   data() {
     return {
+      clock: null,
       camera: null,
       scene: null,
       controls: null,
@@ -57,6 +58,7 @@ export default {
   },
   methods: {
     init() {
+      this.clock = new THREE.Clock()
       let container = document.getElementById("container");
 
       this.sizes.width = window.innerWidth;
@@ -93,8 +95,6 @@ export default {
           console.error(e);
         }
       );
-
-
 
       this.renderer = new THREE.WebGLRenderer({ antialias: true });
       this.renderer.setSize(this.sizes.width, this.sizes.height);
@@ -183,6 +183,11 @@ export default {
 
     animate() {
       requestAnimationFrame(this.animate);
+
+      const elapsedTime = this.clock.getElapsedTime();
+
+      // Update shader material
+      if(this.shader) this.shader.material.uniforms.uTime.value = elapsedTime;
       this.renderer.render(this.scene, this.camera);
     },
   },
