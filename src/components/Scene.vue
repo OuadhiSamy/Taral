@@ -7,6 +7,9 @@
 import { mapState } from "vuex";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { gsap } from "gsap";
 
 import vertexShader from "../shaders/vertex.glsl";
@@ -21,6 +24,7 @@ export default {
       scene: null,
       controls: null,
       renderer: null,
+      effectComposer: null,
       card: null,
       layout: null,
       shader: null,
@@ -35,17 +39,17 @@ export default {
       cardSettings: {
         width: 3.8,
         height: 6,
-        thickness: 0.1,
+        thickness: 0.05,
         margin: 0.38,
       },
     };
   },
   // computed: mapState(["cameraPosition"]),
   computed: mapState({
-    layoutArray: state => state.layoutArray,
-    layoutTextureArray: state => state.layoutTextureArray,
-    layoutTexture: state => state.layoutTexture, 
-    cameraPosition: state => state.cameraPosition, 
+    layoutArray: (state) => state.layoutArray,
+    layoutTextureArray: (state) => state.layoutTextureArray,
+    layoutTexture: (state) => state.layoutTexture,
+    cameraPosition: (state) => state.cameraPosition,
   }),
   watch: {
     cameraPosition(value) {
@@ -64,9 +68,9 @@ export default {
       });
     },
     layoutTexture(value) {
-      console.log("watch",this.layout.material)
+      console.log("watch", this.layout.material);
       this.layout.material.map = value;
-    }
+    },
   },
   methods: {
     init() {
@@ -111,13 +115,44 @@ export default {
       this.alphaTexture = this.textureLoader.load("./sword_alpha.png");
 
       for (let i = 0; i < this.layoutArray.length; i++) {
-        this.layoutTextureArray.push({id:i, texture:this.textureLoader.load(`./${this.layoutArray[i]}.png`)}) 
+        this.layoutTextureArray.push({
+          id: i,
+          texture: this.textureLoader.load(`./${this.layoutArray[i]}.png`),
+        });
       }
 
       this.renderer = new THREE.WebGLRenderer({ antialias: true });
+      this.renderer.physicallyCorrectLights = true;
+      this.renderer.outputEncoding = THREE.sRGBEncoding;
+      this.renderer.toneMapping = THREE.ReinhardToneMapping;
+      this.renderer.toneMappingExposure = 1.5;
       this.renderer.setSize(this.sizes.width, this.sizes.height);
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       container.appendChild(this.renderer.domElement);
+
+      /**
+       * Post processing
+       */
+      // Renderer target
+      const renderTarget = new THREE.WebGLMultisampleRenderTarget(800, 600, {
+        minFilter: THREE.LinearFilter,
+        maxFilter: THREE.LinearFilter,
+        format: THREE.RGBAFormat,
+        encoding: THREE.sRGBEncoding,
+      });
+
+      // Composer
+      this.effectComposer = new EffectComposer(this.renderer, renderTarget);
+      this.effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      this.effectComposer.setSize(this.sizes.width, this.sizes.height);
+
+      // Passes
+      const renderPass = new RenderPass(this.scene, this.camera);
+      this.effectComposer.addPass(renderPass);
+
+      const smaaPass = new SMAAPass();
+      smaaPass.enabled = true;
+      this.effectComposer.addPass(smaaPass);
     },
 
     setUpCard() {
@@ -137,7 +172,6 @@ export default {
 
       this.card.position.set(0, 0, 0);
       this.scene.add(this.card);
-          
 
       /**
        * Layout
@@ -157,7 +191,6 @@ export default {
 
       this.layout.position.set(0, 0, 0.056);
       this.scene.add(this.layout);
-
 
       /**
        * Shader plane
@@ -229,7 +262,8 @@ export default {
 
       // Update shader material
       if (this.shader) this.shader.material.uniforms.uTime.value = elapsedTime;
-      this.renderer.render(this.scene, this.camera);
+      // this.renderer.render(this.scene, this.camera);
+      this.effectComposer.render();
     },
   },
   mounted() {
