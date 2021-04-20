@@ -21,11 +21,16 @@ export default {
       scene: null,
       controls: null,
       renderer: null,
+      layoutArray: [],
+      layoutTextureArray: [],
       card: null,
+      layout: null,
       shader: null,
       aspect: null,
       textureLoader: null,
+      loadingManager: null,
       alphaTexture: null,
+      layoutTexture: null,
       sizes: {
         width: null,
         height: null,
@@ -58,14 +63,20 @@ export default {
   },
   methods: {
     init() {
-      this.clock = new THREE.Clock()
+      // Init list of item to load
+      this.layoutArray = [
+        'layout',
+        'layout2'
+      ]
+
+      this.clock = new THREE.Clock();
       let container = document.getElementById("container");
 
       this.sizes.width = window.innerWidth;
       this.sizes.height = window.innerWidth;
 
       this.camera = new THREE.PerspectiveCamera(
-        50,
+        75,
         this.sizes.width / this.sizes.height,
         0.01,
         100
@@ -73,28 +84,34 @@ export default {
       this.camera.position.set(0, 4, 10);
 
       this.scene = new THREE.Scene();
-      this.scene.background = new THREE.Color(0x050505);
+      this.scene.background = new THREE.Color(0x3d3d3d);
 
       this.controls = new OrbitControls(this.camera, container);
       this.controls.minPolarAngle = Math.PI / 4;
       this.controls.maxPolarAngle = Math.PI / 2 + Math.PI / 4;
-      // this.controls.enableDamping = true;
+      this.controls.enableDamping = true;
 
-      this.textureLoader = new THREE.TextureLoader();
-      this.alphaTexture = this.textureLoader.load(
-        "./sword_alpha.png",
-        (texture) => {
-          console.log(texture);
+      this.loadingManager = new THREE.LoadingManager(
+        // Loaded
+        () => {
+          console.log("loaded");
           this.setUpCard();
           this.setUpLights();
         },
-        (p) => {
-          console.log(p);
-        },
-        (e) => {
-          console.error(e);
+
+        // Progress
+        () => {
+          console.log("progress");
         }
       );
+
+      this.textureLoader = new THREE.TextureLoader(this.loadingManager);
+
+      this.alphaTexture = this.textureLoader.load("./sword_alpha.png");
+
+      for (let layout of this.layoutArray) {
+        this.layoutTextureArray.push(this.textureLoader.load(`./${layout}.png`)) 
+      }
 
       this.renderer = new THREE.WebGLRenderer({ antialias: true });
       this.renderer.setSize(this.sizes.width, this.sizes.height);
@@ -119,14 +136,32 @@ export default {
 
       this.card.position.set(0, 0, 0);
       this.scene.add(this.card);
+          
+
+      /**
+       * Layout
+       */
+      this.layoutTexture = this.layoutTextureArray[0];
+      this.layout = new THREE.Mesh(
+        new THREE.PlaneBufferGeometry(6, 6),
+        new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          map: this.layoutTexture,
+          transparent: true,
+        })
+      );
+
+      this.layout.position.set(0, 0, 0.056);
+      this.scene.add(this.layout);
+
 
       /**
        * Shader plane
        */
       this.shader = new THREE.Mesh(
         new THREE.PlaneBufferGeometry(
-          this.cardSettings.width + 1,
-          this.cardSettings.width + 1
+          this.cardSettings.width,
+          this.cardSettings.width
         ),
         new THREE.ShaderMaterial({
           vertexShader,
@@ -139,9 +174,8 @@ export default {
           },
         })
       );
-      this.shader.position.set(0, 0, this.cardSettings.thickness);
+      this.shader.position.set(0, 0, 0.057);
       this.shader.geometry.rotateZ(0.01);
-      console.log(this.alphaTexture);
       this.scene.add(this.shader);
     },
 
@@ -184,10 +218,13 @@ export default {
     animate() {
       requestAnimationFrame(this.animate);
 
+      // Update controls
+      this.controls.update();
+
       const elapsedTime = this.clock.getElapsedTime();
 
       // Update shader material
-      if(this.shader) this.shader.material.uniforms.uTime.value = elapsedTime;
+      if (this.shader) this.shader.material.uniforms.uTime.value = elapsedTime;
       this.renderer.render(this.scene, this.camera);
     },
   },

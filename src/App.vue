@@ -2,18 +2,20 @@
   <div id="app">
     <button class="test-button" @click="updateCamera">ZoomIn</button>
     <Scene />
+    <UI />
   </div>
 </template>
 
 <script>
 /* eslint-disable */ 
-
 import Scene from "./components/Scene";
+import UI from "./components/UI";
 
 export default {
   name: "App",
   components: {
     Scene,
+    UI
   },
   methods: {
     updateCamera() {
