@@ -21,8 +21,6 @@ export default {
       scene: null,
       controls: null,
       renderer: null,
-      layoutArray: [],
-      layoutTextureArray: [],
       card: null,
       layout: null,
       shader: null,
@@ -30,7 +28,6 @@ export default {
       textureLoader: null,
       loadingManager: null,
       alphaTexture: null,
-      layoutTexture: null,
       sizes: {
         width: null,
         height: null,
@@ -43,7 +40,13 @@ export default {
       },
     };
   },
-  computed: mapState(["cameraPosition"]),
+  // computed: mapState(["cameraPosition"]),
+  computed: mapState({
+    layoutArray: state => state.layoutArray,
+    layoutTextureArray: state => state.layoutTextureArray,
+    layoutTexture: state => state.layoutTexture, 
+    cameraPosition: state => state.cameraPosition, 
+  }),
   watch: {
     cameraPosition(value) {
       console.log("Update", value);
@@ -60,15 +63,13 @@ export default {
         },
       });
     },
+    layoutTexture(value) {
+      console.log("watch",this.layout.material)
+      this.layout.material.map = value;
+    }
   },
   methods: {
     init() {
-      // Init list of item to load
-      this.layoutArray = [
-        'layout',
-        'layout2'
-      ]
-
       this.clock = new THREE.Clock();
       let container = document.getElementById("container");
 
@@ -109,8 +110,8 @@ export default {
 
       this.alphaTexture = this.textureLoader.load("./sword_alpha.png");
 
-      for (let layout of this.layoutArray) {
-        this.layoutTextureArray.push(this.textureLoader.load(`./${layout}.png`)) 
+      for (let i = 0; i < this.layoutArray.length; i++) {
+        this.layoutTextureArray.push({id:i, texture:this.textureLoader.load(`./${this.layoutArray[i]}.png`)}) 
       }
 
       this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -141,7 +142,10 @@ export default {
       /**
        * Layout
        */
-      this.layoutTexture = this.layoutTextureArray[0];
+      // let currentTexture = this.$store.getters.getLayoutTexture(this.currentLayout);
+      // this.layoutTexture = this.layoutTextureArray[0].texture;
+      // let layoutTexture = this.$store.commit('updateLayoutTexture', 0);
+      this.$store.commit("updateLayoutTexture", 1);
       this.layout = new THREE.Mesh(
         new THREE.PlaneBufferGeometry(6, 6),
         new THREE.MeshBasicMaterial({

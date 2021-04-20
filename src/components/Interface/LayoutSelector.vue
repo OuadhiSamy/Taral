@@ -1,10 +1,10 @@
 <template>
   <div class="layout-selector">
     <ul>
-        <li class="layout-selector__item">
+        <li class="layout-selector__item" @click="changeLayout(0)">
             Layout 1
         </li>
-        <li class="layout-selector__item">
+        <li class="layout-selector__item" @click="changeLayout(1)">
             Layout 2
         </li>
     </ul>
@@ -14,6 +14,15 @@
 <script>
 export default {
   name: "LayoutSelector",
+  computed: {
+      layoutTexture: state => state.layoutTexture, 
+  },
+  methods: {
+      changeLayout(id) {
+        console.log(id)
+        this.$store.commit('updateLayoutTexture', id);
+      }
+  }
 };
 </script>
 
