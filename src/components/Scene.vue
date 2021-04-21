@@ -34,15 +34,9 @@ export default {
       loadingManager: null,
       textureLoader: null,
       fontLoader: null,
-      alphaTexture: null,
       sizes: {
         width: null,
         height: null,
-      },
-      cardSettings: { // move needed to store
-        width: 3.8,
-        height: 6,
-        thickness: 0.05,
       },
       textData: {
         // TODO : move needed to store
@@ -53,20 +47,24 @@ export default {
         font: "Elgoc",
         weight: "Black",
       },
-      TextMeshes : {
+      TextMeshes: {
         nb: null,
-        name: null
+        name: null,
       },
       font: null,
       matcap: null,
     };
   },
   computed: mapState({
-    layoutArray: (state) => state.layoutArray,
-    layoutTextureArray: (state) => state.layoutTextureArray,
-    layoutTexture: (state) => state.layoutTexture,
-    cameraPosition: (state) => state.cameraPosition,
-    numberSize: (state) => state.numberSize,
+    contentMap: "contentMap",
+    alphaTextureArray: "alphaTextureArray",
+    layoutArray: "layoutArray",
+    layoutTextureArray: "layoutTextureArray",
+    layoutTexture: "layoutTexture",
+    alphaTexture: "alphaTexture",
+    cameraPosition: "cameraPosition",
+    numberSize: "numberSize",
+    cardSettings: "cardSettings",
     nbSize: (state) => state.cardSettings.text.nb.size,
     nameSize: (state) => state.cardSettings.text.name.size,
   }),
@@ -85,6 +83,9 @@ export default {
           camera.lookAt(center);
         },
       });
+    },
+    alphaTexture(value) {
+      this.updateCard(value);
     },
     layoutTexture(value) {
       this.layout.material.map = value;
@@ -111,7 +112,7 @@ export default {
         0.01,
         100
       );
-      this.camera.position.set(0, 4, 10);
+      this.camera.position.set(0, -1, 5);
 
       this.scene = new THREE.Scene();
       this.scene.background = new THREE.Color(0x3d3d3d);
@@ -143,7 +144,15 @@ export default {
 
       this.textureLoader = new THREE.TextureLoader(this.loadingManager);
       this.fontLoader = new THREE.FontLoader(this.loadingManager);
-      this.alphaTexture = this.textureLoader.load("./force_alpha.png");
+
+      this.contentMap.forEach((e) => {
+        this.alphaTextureArray.push({
+          id: e.id,
+          texture: this.textureLoader.load(`./${e.name}_alpha.png`),
+        });
+        console.log(this.alphaTextureArray);
+      });
+
       this.matcap = this.textureLoader.load("./matcap.jpg");
       this.fontLoader.load("./Elgoc_Black.json", (font) => {
         this.font = font;
@@ -227,6 +236,8 @@ export default {
       /**
        * Shader plane
        */
+
+      this.$store.commit("updateAlphaTexture", 19);
       this.shader = new THREE.Mesh(
         new THREE.PlaneBufferGeometry(
           this.cardSettings.width,
@@ -262,31 +273,37 @@ export default {
     },
 
     generateText() {
-      const numberGeometry = new THREE.TextGeometry(this.textData.text, {
+
+      // Get content by id
+      let content = this.contentMap.find(data => data.id === this.cardSettings.id);
+      if(content === undefined) throw new Error(`[TARAL] Content with id ${this.cardSettings.id} not found.`)
+      
+      console.log("textContent", content)
+
+      let fontSettings = {
         font: this.font,
         size: this.textData.size,
         height: this.textData.height,
         curveSegments: this.textData.curveSegments,
-      });
+      };
+      const numberGeometry = new THREE.TextBufferGeometry(
+        content.rNumber,
+        fontSettings
+      );
+      const TextBufferGeometry = new THREE.TextBufferGeometry(
+        content.title,
+        fontSettings
+      );
 
-      const textGeometry = new THREE.TextGeometry("The Force", {
-        font: this.font,
-        size: this.textData.size,
-        height: this.textData.height,
-        curveSegments: this.textData.curveSegments,
-      });
-
-      textGeometry.center();
+      TextBufferGeometry.center();
       numberGeometry.center();
 
-
-      
       this.TextMeshes.nb = new THREE.Mesh(
         numberGeometry,
         new THREE.MeshMatcapMaterial({ map: this.matcap })
       );
       this.TextMeshes.name = new THREE.Mesh(
-        textGeometry,
+        TextBufferGeometry,
         new THREE.MeshMatcapMaterial({ map: this.matcap })
       );
 
@@ -295,13 +312,31 @@ export default {
       this.TextMeshes.nb.position.y = 2.4;
       this.TextMeshes.name.position.y = -2.4;
 
+      this.TextMeshes.nb.scale.set(this.nbSize, this.nbSize, 1);
+      this.TextMeshes.name.scale.set(this.nameSize, this.nameSize, 1);
+
       this.scene.add(this.TextMeshes.nb, this.TextMeshes.name);
 
       // this.initGUI();
     },
 
+    updateCard(alpha) {
+      this.shader.material.uniforms["uAlphaMap"].value = alpha;
+
+      // Remove objects from scene
+      this.scene.remove(this.TextMeshes.nb, this.TextMeshes.name);
+      // Dispose old text
+      this.TextMeshes.nb.geometry.dispose();
+      this.TextMeshes.nb.material.dispose();
+      this.TextMeshes.name.geometry.dispose();
+      this.TextMeshes.name.material.dispose();
+
+      // generate new texts with store values
+      this.generateText();
+    },
+
     initGUI() {
-      const folder = this.gui.addFolder("THREE.TextGeometry");
+      const folder = this.gui.addFolder("THREE.TextBufferGeometry ");
       folder.add(this.text.position, "x", -3, 3, 0.1);
       folder.add(this.text.position, "y", -3, 3, 0.1);
     },

@@ -1,5 +1,15 @@
 <template>
   <div class="font-modifier">
+    <div class="card-selector__list">
+      <div
+        class="card-selector__item"
+        v-for="card in contentMap"
+        :key="card.id"
+        @click="changeCard(card.id)"
+      >
+        {{ card.id }} - {{ card.name }}
+      </div>
+    </div>
     <input
       class="font-modifier__slider"
       type="range"
@@ -29,6 +39,8 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+
 export default {
   name: "FontModifier",
   data() {
@@ -37,11 +49,17 @@ export default {
       nameScale: 1,
     };
   },
-  computed: {},
+  computed: mapState({
+    contentMap: "contentMap",
+  }),
   methods: {
-      onScaleUpdate(origin, data) {
-        this.$store.commit('updateScale', {type: origin, size: data})
-      }
+    onScaleUpdate(origin, data) {
+      this.$store.commit("updateScale", { type: origin, size: data });
+    },
+    changeCard(id) {
+      console.log(id);
+      this.$store.commit("updateAlphaTexture", id);
+    },
   },
 };
 </script>
@@ -59,6 +77,19 @@ export default {
 
   &__slider {
     width: 100%;
+  }
+}
+
+.card-selector {
+  &__list {
+    margin-bottom: 40px;
+  }
+
+  &__item {
+    font-size: 32px;
+    font-weight: bold;
+    color: white;
+    margin-top: 8px;
   }
 }
 </style>
