@@ -13,7 +13,7 @@ void main() {
     }
 
 
-    vec4 baseClor = vec4(1.0 * sin(coord.x) + 0.5, 0.5 * sin(coord.y) + 0.5, 0.5 * sin(coord.x + coord.y), 1.0);
+    vec4 baseClor = vec4(0.5 * sin(coord.x) + 0.5, 0.5 * sin(coord.x) + 0.4, 0.5 * sin(coord.x - coord.x), 1.0);
 
     vec4 mask = texture2D(uAlphaMap, vUv);
     baseClor.a *= (mask.r + uNegateMask);

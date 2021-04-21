@@ -1,15 +1,18 @@
 <template>
   <div id="UI">
-    <layout-selector/>
+    <!-- <layout-selector/> -->
+    <font-modifier/>
   </div>
 </template>
 
 <script>
-import LayoutSelector from './Interface/LayoutSelector.vue';
+// import LayoutSelector from './Interface/LayoutSelector.vue';
+import FontModifier from './Interface/FontModifier.vue';
 export default {
   name: "UI",
     components: {
-    LayoutSelector
+    // LayoutSelector
+    FontModifier
   },
 };
 </script>

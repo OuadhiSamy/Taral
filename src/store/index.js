@@ -5,6 +5,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    numberSize: 1,
     layoutArray: ['layout','layout2'],
     layoutTextureArray: [],
     layoutTexture: null,
@@ -18,6 +19,9 @@ export default new Vuex.Store({
     updateLayoutTexture (state, id) {
       state.layoutTexture = state.layoutTextureArray.find(texture => texture.id === id).texture;
       console.log(state.layoutTexture);
+    },
+    updateFontSize (state, size) {
+      state.numberSize = size;
     }
   },
   actions: {},

@@ -30,7 +30,7 @@ export default {
 .layout-selector {
     position: absolute;
     top: 40px;
-    right: 40px;
+    left: 40px;
 
     &__item {
         font-size: 30px;

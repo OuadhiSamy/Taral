@@ -6,6 +6,7 @@
 /* eslint-disable */
 import { mapState } from "vuex";
 import * as THREE from "three";
+import * as dat from "dat.gui";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass";
@@ -29,8 +30,9 @@ export default {
       layout: null,
       shader: null,
       aspect: null,
-      textureLoader: null,
       loadingManager: null,
+      textureLoader: null,
+      fontLoader: null,
       alphaTexture: null,
       sizes: {
         width: null,
@@ -42,14 +44,34 @@ export default {
         thickness: 0.05,
         margin: 0.38,
       },
+      textData: {
+        // TODO : move needed to store
+        text: "XIX",
+        size: 0.15,
+        height: 0.1,
+        curveSegments: 12,
+        font: "Elgoc",
+        weight: "Black",
+        bevelEnabled: false,
+        bevelThickness: 1,
+        bevelSize: 0.5,
+        bevelOffset: 0.0,
+        bevelSegments: 3,
+        posX: -1,
+      },
+      font: null,
+      gui: null,
+      text: null,
+      number: null,
+      matcap: null,
     };
   },
-  // computed: mapState(["cameraPosition"]),
   computed: mapState({
     layoutArray: (state) => state.layoutArray,
     layoutTextureArray: (state) => state.layoutTextureArray,
     layoutTexture: (state) => state.layoutTexture,
     cameraPosition: (state) => state.cameraPosition,
+    numberSize: (state) => state.numberSize,
   }),
   watch: {
     cameraPosition(value) {
@@ -68,12 +90,16 @@ export default {
       });
     },
     layoutTexture(value) {
-      console.log("watch", this.layout.material);
       this.layout.material.map = value;
+    },
+    numberSize(value) {
+      console.log(this.number.scale);
+      this.number.scale.set(value, value, 1);
     },
   },
   methods: {
     init() {
+      this.gui = new dat.GUI();
       this.clock = new THREE.Clock();
       let container = document.getElementById("container");
 
@@ -102,17 +128,27 @@ export default {
           console.log("loaded");
           this.setUpCard();
           this.setUpLights();
+          this.generateText();
         },
 
         // Progress
         () => {
           console.log("progress");
+        },
+
+        // Error
+        (err) => {
+          console.error(err);
         }
       );
 
       this.textureLoader = new THREE.TextureLoader(this.loadingManager);
-
-      this.alphaTexture = this.textureLoader.load("./sword_alpha.png");
+      this.fontLoader = new THREE.FontLoader(this.loadingManager);
+      this.alphaTexture = this.textureLoader.load("./force_alpha.png");
+      this.matcap = this.textureLoader.load("./matcap.jpg");
+      this.fontLoader.load("./Elgoc_Black.json", (font) => {
+        this.font = font;
+      });
 
       for (let i = 0; i < this.layoutArray.length; i++) {
         this.layoutTextureArray.push({
@@ -130,29 +166,29 @@ export default {
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       container.appendChild(this.renderer.domElement);
 
-      /**
-       * Post processing
-       */
-      // Renderer target
-      const renderTarget = new THREE.WebGLMultisampleRenderTarget(800, 600, {
-        minFilter: THREE.LinearFilter,
-        maxFilter: THREE.LinearFilter,
-        format: THREE.RGBAFormat,
-        encoding: THREE.sRGBEncoding,
-      });
+      // /**
+      //  * Post processing
+      //  */
+      // // Renderer target
+      // const renderTarget = new THREE.WebGLMultisampleRenderTarget(800, 600, {
+      //   minFilter: THREE.LinearFilter,
+      //   maxFilter: THREE.LinearFilter,
+      //   format: THREE.RGBAFormat,
+      //   encoding: THREE.sRGBEncoding,
+      // });
 
-      // Composer
-      this.effectComposer = new EffectComposer(this.renderer, renderTarget);
-      this.effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      this.effectComposer.setSize(this.sizes.width, this.sizes.height);
+      // // Composer
+      // this.effectComposer = new EffectComposer(this.renderer, renderTarget);
+      // this.effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      // this.effectComposer.setSize(this.sizes.width, this.sizes.height);
 
-      // Passes
-      const renderPass = new RenderPass(this.scene, this.camera);
-      this.effectComposer.addPass(renderPass);
+      // // Passes
+      // const renderPass = new RenderPass(this.scene, this.camera);
+      // this.effectComposer.addPass(renderPass);
 
-      const smaaPass = new SMAAPass();
-      smaaPass.enabled = true;
-      this.effectComposer.addPass(smaaPass);
+      // const smaaPass = new SMAAPass();
+      // smaaPass.enabled = false;
+      // this.effectComposer.addPass(smaaPass);
     },
 
     setUpCard() {
@@ -160,7 +196,7 @@ export default {
        * Card
        */
       this.card = new THREE.Mesh(
-        new THREE.BoxBufferGeometry(3.8, 6, 0.11),
+        new THREE.BoxBufferGeometry(3.8, 6, 0.05),
         new THREE.MeshPhysicalMaterial({
           color: 0x000000,
           metalness: 0,
@@ -176,9 +212,6 @@ export default {
       /**
        * Layout
        */
-      // let currentTexture = this.$store.getters.getLayoutTexture(this.currentLayout);
-      // this.layoutTexture = this.layoutTextureArray[0].texture;
-      // let layoutTexture = this.$store.commit('updateLayoutTexture', 0);
       this.$store.commit("updateLayoutTexture", 1);
       this.layout = new THREE.Mesh(
         new THREE.PlaneBufferGeometry(6, 6),
@@ -221,21 +254,63 @@ export default {
       this.scene.add(ambientLight);
 
       const pointLight = new THREE.PointLight(0xcc9200, 1);
-      // const pointLightHelper = new THREE.PointLightHelper(pointLight, 2);
       pointLight.position.set(0, -1.4, 10);
       this.scene.add(pointLight);
-      // scene.add(pointLightHelper);
 
       const dirLight = new THREE.PointLight(0xffffff, 0.2);
-      // const dirLightHelper = new THREE.PointLightHelper(dirLight, 5);
       dirLight.position.set(20, -0.3, -7.2);
       this.scene.add(dirLight);
-      // scene.add(dirLightHelper);
+    },
 
-      // let lightFolder = gui.addFolder("Lights");
-      // lightFolder.add(dirLight.position, "x", -10, 10).name("x");
-      // lightFolder.add(dirLight.position, "y", -10, 10).name("y");
-      // lightFolder.add(dirLight.position, "z", -10, 10).name("z");
+    generateText() {
+      const numberGeometry = new THREE.TextGeometry(this.textData.text, {
+        font: this.font,
+        size: this.textData.size,
+        height: this.textData.height,
+        curveSegments: this.textData.curveSegments,
+        bevelEnabled: this.textData.bevelEnabled,
+        bevelThickness: this.textData.bevelThickness,
+        bevelSize: this.textData.bevelSize,
+        bevelOffset: this.textData.bevelOffset,
+        bevelSegments: this.textData.bevelSegments,
+      });
+
+      const textGeometry = new THREE.TextGeometry("The Force", {
+        font: this.font,
+        size: this.textData.size,
+        height: this.textData.height,
+        curveSegments: this.textData.curveSegments,
+        bevelEnabled: this.textData.bevelEnabled,
+        bevelThickness: this.textData.bevelThickness,
+        bevelSize: this.textData.bevelSize,
+        bevelOffset: this.textData.bevelOffset,
+        bevelSegments: this.textData.bevelSegments,
+      });
+
+      textGeometry.center();
+      numberGeometry.center();
+
+      this.number = new THREE.Mesh(
+        numberGeometry,
+        new THREE.MeshMatcapMaterial({ map: this.matcap })
+      );
+      this.text = new THREE.Mesh(
+        textGeometry,
+        new THREE.MeshMatcapMaterial({ map: this.matcap })
+      );
+
+      this.number.position.y = 2.4;
+      this.text.position.y = -2.4;
+
+      this.scene.add(this.number, this.text);
+
+      // this.initGUI();
+    },
+
+    initGUI() {
+      const folder = this.gui.addFolder("THREE.TextGeometry");
+      folder.add(this.text.position, "x", -3, 3, 0.1);
+      folder.add(this.text.position, "y", -3, 3, 0.1);
     },
 
     resizeCanvas() {
@@ -262,8 +337,8 @@ export default {
 
       // Update shader material
       if (this.shader) this.shader.material.uniforms.uTime.value = elapsedTime;
-      // this.renderer.render(this.scene, this.camera);
-      this.effectComposer.render();
+      this.renderer.render(this.scene, this.camera);
+      // this.effectComposer.render();
     },
   },
   mounted() {
