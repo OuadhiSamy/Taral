@@ -5,13 +5,26 @@
       type="range"
       name="numberSize"
       id=""
-      v-model="nbFontSize"
+      v-model="nbScale"
       min="0"
       max="2"
       step="0.01"
-      @input="$store.commit('updateFontSize', nbFontSize)"
+      @input="onScaleUpdate('nb', nbScale)"
     />
-    {{ nbFontSize }}
+    {{ nbScale }}
+
+    <input
+      class="font-modifier__slider"
+      type="range"
+      name="numberSize"
+      id=""
+      v-model="nameScale"
+      min="0"
+      max="2"
+      step="0.01"
+      @input="onScaleUpdate('name', nameScale)"
+    />
+    {{ nameScale }}
   </div>
 </template>
 
@@ -20,11 +33,16 @@ export default {
   name: "FontModifier",
   data() {
     return {
-      nbFontSize: 1,
+      nbScale: 1,
+      nameScale: 1,
     };
   },
   computed: {},
-  methods: {},
+  methods: {
+      onScaleUpdate(origin, data) {
+        this.$store.commit('updateScale', {type: origin, size: data})
+      }
+  },
 };
 </script>
 

@@ -20,6 +20,7 @@ export default {
   name: "Scene",
   data() {
     return {
+      gui: null,
       clock: null,
       camera: null,
       scene: null,
@@ -38,31 +39,25 @@ export default {
         width: null,
         height: null,
       },
-      cardSettings: {
+      cardSettings: { // move needed to store
         width: 3.8,
         height: 6,
         thickness: 0.05,
-        margin: 0.38,
       },
       textData: {
         // TODO : move needed to store
         text: "XIX",
         size: 0.15,
-        height: 0.1,
+        height: 0.04,
         curveSegments: 12,
         font: "Elgoc",
         weight: "Black",
-        bevelEnabled: false,
-        bevelThickness: 1,
-        bevelSize: 0.5,
-        bevelOffset: 0.0,
-        bevelSegments: 3,
-        posX: -1,
+      },
+      TextMeshes : {
+        nb: null,
+        name: null
       },
       font: null,
-      gui: null,
-      text: null,
-      number: null,
       matcap: null,
     };
   },
@@ -72,6 +67,8 @@ export default {
     layoutTexture: (state) => state.layoutTexture,
     cameraPosition: (state) => state.cameraPosition,
     numberSize: (state) => state.numberSize,
+    nbSize: (state) => state.cardSettings.text.nb.size,
+    nameSize: (state) => state.cardSettings.text.name.size,
   }),
   watch: {
     cameraPosition(value) {
@@ -92,9 +89,11 @@ export default {
     layoutTexture(value) {
       this.layout.material.map = value;
     },
-    numberSize(value) {
-      console.log(this.number.scale);
-      this.number.scale.set(value, value, 1);
+    nbSize(value) {
+      this.TextMeshes.nb.scale.set(value, value, 1);
+    },
+    nameSize(value) {
+      this.TextMeshes.name.scale.set(value, value, 1);
     },
   },
   methods: {
@@ -268,11 +267,6 @@ export default {
         size: this.textData.size,
         height: this.textData.height,
         curveSegments: this.textData.curveSegments,
-        bevelEnabled: this.textData.bevelEnabled,
-        bevelThickness: this.textData.bevelThickness,
-        bevelSize: this.textData.bevelSize,
-        bevelOffset: this.textData.bevelOffset,
-        bevelSegments: this.textData.bevelSegments,
       });
 
       const textGeometry = new THREE.TextGeometry("The Force", {
@@ -280,29 +274,28 @@ export default {
         size: this.textData.size,
         height: this.textData.height,
         curveSegments: this.textData.curveSegments,
-        bevelEnabled: this.textData.bevelEnabled,
-        bevelThickness: this.textData.bevelThickness,
-        bevelSize: this.textData.bevelSize,
-        bevelOffset: this.textData.bevelOffset,
-        bevelSegments: this.textData.bevelSegments,
       });
 
       textGeometry.center();
       numberGeometry.center();
 
-      this.number = new THREE.Mesh(
+
+      
+      this.TextMeshes.nb = new THREE.Mesh(
         numberGeometry,
         new THREE.MeshMatcapMaterial({ map: this.matcap })
       );
-      this.text = new THREE.Mesh(
+      this.TextMeshes.name = new THREE.Mesh(
         textGeometry,
         new THREE.MeshMatcapMaterial({ map: this.matcap })
       );
 
-      this.number.position.y = 2.4;
-      this.text.position.y = -2.4;
+      this.TextMeshes.nb.position.z = this.textData.height / 2;
+      this.TextMeshes.name.position.z = this.textData.height / 2;
+      this.TextMeshes.nb.position.y = 2.4;
+      this.TextMeshes.name.position.y = -2.4;
 
-      this.scene.add(this.number, this.text);
+      this.scene.add(this.TextMeshes.nb, this.TextMeshes.name);
 
       // this.initGUI();
     },

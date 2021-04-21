@@ -9,7 +9,24 @@ export default new Vuex.Store({
     layoutArray: ['layout','layout2'],
     layoutTextureArray: [],
     layoutTexture: null,
-    cameraPosition: null
+    cameraPosition: null,
+    cardSettings: {
+      text: {
+        nb: {
+          content: "XIX",
+          size: 1,
+          height: 1,
+          font: "Elgoc",
+          mode: "0"
+        },
+        name: {
+          content: "XIX",
+          size: 1,
+          height: 1,
+          font: "Elgoc",
+        }
+      }
+    }
   },
   getters: {},
   mutations: {
@@ -20,8 +37,9 @@ export default new Vuex.Store({
       state.layoutTexture = state.layoutTextureArray.find(texture => texture.id === id).texture;
       console.log(state.layoutTexture);
     },
-    updateFontSize (state, size) {
-      state.numberSize = size;
+    updateScale (state, o) {
+      if(o.type === "nb") state.cardSettings.text.nb.size = o.size;
+      if(o.type === "name") state.cardSettings.text.name.size = o.size;
     }
   },
   actions: {},
