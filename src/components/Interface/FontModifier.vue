@@ -35,6 +35,17 @@
       @input="onScaleUpdate('name', nameScale)"
     />
     {{ nameScale }}
+
+    <div class="card-selector__list">
+      <div
+        class="card-selector__item"
+        v-for="font in fontMap"
+        :key="font.id"
+        @click="changeFont(font.id)"
+      >
+        {{ font.name }}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -51,15 +62,19 @@ export default {
   },
   computed: mapState({
     contentMap: "contentMap",
+    fontMap: "fontMap",
   }),
   methods: {
     onScaleUpdate(origin, data) {
       this.$store.commit("updateScale", { type: origin, size: data });
     },
     changeCard(id) {
-      console.log(id);
       this.$store.commit("updateAlphaTexture", id);
     },
+    changeFont(id) {
+      console.log(id);
+      this.$store.commit("updateFont", id);
+    }
   },
 };
 </script>

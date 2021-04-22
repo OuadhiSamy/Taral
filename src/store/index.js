@@ -7,16 +7,26 @@ export default new Vuex.Store({
   state: {
     numberSize: 1,
     layoutArray: ['layout', 'layout2'],
-    layoutTextureArray: [],
     layoutTexture: null,
     alphaTexture: null,
     cameraPosition: null,
     contentMap: [
-      { id: 19, name: 'sword', title: 'The Sword', rNumber: "XIX" },
-      { id: 20, name: 'force', title: 'The Force', rNumber: "IX" },
+      { id: 19, name: 'sword', title: 'The Sword', rNumber: "XIX", texture: null },
+      { id: 20, name: 'force', title: 'The Force', rNumber: "IX", texture: null },
+    ],
+    layoutMap: [
+      { id: 0, name: 'layout', nbPos: { x: 1, y: 2.4 }, namePos: { x: 0, y: -2.4 }, texture: null },
+      { id: 1, name: 'layout2', nbPos: { x: -1, y: 2.4 }, namePos: { x: -1, y: -2.4 }, texture: null },
+    ],
+    fontMap: [
+      { id: 0, name: 'Elgoc_Black', font: null },
+      { id: 1, name: 'Helvetica-Neue_Regular', font: null },
+      { id: 2, name: 'Authentic', font: null }
     ],
     cardSettings: {
       id: 19,
+      layoutId: 0,
+      fontId: 0,
       width: 3.8,
       height: 6,
       thickness: 0.05,
@@ -34,7 +44,6 @@ export default new Vuex.Store({
         }
       }
     },
-    alphaTextureArray: []
   },
   getters: {
   },
@@ -44,10 +53,15 @@ export default new Vuex.Store({
     },
     updateAlphaTexture(state, id) {
       state.cardSettings.id = id;
-      state.alphaTexture = state.alphaTextureArray.find(texture => texture.id === id).texture;
+      state.alphaTexture = state.contentMap.find(content => content.id === id).texture;
     },
     updateLayoutTexture(state, id) {
-      state.layoutTexture = state.layoutTextureArray.find(texture => texture.id === id).texture;
+      state.cardSettings.layoutId = id;
+      state.layoutTexture = state.layoutMap.find(layout => layout.id === id).texture;
+    },
+    updateFont(state, id) {
+      state.cardSettings.fontId = id;
+      console.log(id)
     },
     updateScale(state, o) {
       if (o.type === "nb") state.cardSettings.text.nb.size = o.size;

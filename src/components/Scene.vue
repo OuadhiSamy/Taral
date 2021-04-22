@@ -57,9 +57,9 @@ export default {
   },
   computed: mapState({
     contentMap: "contentMap",
-    alphaTextureArray: "alphaTextureArray",
-    layoutArray: "layoutArray",
-    layoutTextureArray: "layoutTextureArray",
+    layoutMap: "layoutMap",
+    fontMap: "fontMap",
+    // TODO : Store textures in cards settings ?
     layoutTexture: "layoutTexture",
     alphaTexture: "alphaTexture",
     cameraPosition: "cameraPosition",
@@ -67,6 +67,7 @@ export default {
     cardSettings: "cardSettings",
     nbSize: (state) => state.cardSettings.text.nb.size,
     nameSize: (state) => state.cardSettings.text.name.size,
+    fontId: (state) => state.cardSettings.fontId,
   }),
   watch: {
     cameraPosition(value) {
@@ -89,12 +90,16 @@ export default {
     },
     layoutTexture(value) {
       this.layout.material.map = value;
+      this.updateTextPos();
     },
     nbSize(value) {
       this.TextMeshes.nb.scale.set(value, value, 1);
     },
     nameSize(value) {
       this.TextMeshes.name.scale.set(value, value, 1);
+    },
+    fontId() {
+      this.generateText();
     },
   },
   methods: {
@@ -145,25 +150,25 @@ export default {
       this.textureLoader = new THREE.TextureLoader(this.loadingManager);
       this.fontLoader = new THREE.FontLoader(this.loadingManager);
 
-      this.contentMap.forEach((e) => {
-        this.alphaTextureArray.push({
-          id: e.id,
-          texture: this.textureLoader.load(`./${e.name}_alpha.png`),
+      this.contentMap.forEach((content) => {
+        content.texture = this.textureLoader.load(
+          `./${content.name}_alpha.png`
+        );
+      });
+
+      this.fontMap.forEach((font) => {
+        this.fontLoader.load(`./${font.name}.json`, (e) => {
+          font.font = e;
         });
-        console.log(this.alphaTextureArray);
+      });
+
+      console.log("FontMap", this.fontMap);
+
+      this.layoutMap.forEach((layout) => {
+        layout.texture = this.textureLoader.load(`./${layout.name}.png`);
       });
 
       this.matcap = this.textureLoader.load("./matcap.jpg");
-      this.fontLoader.load("./Elgoc_Black.json", (font) => {
-        this.font = font;
-      });
-
-      for (let i = 0; i < this.layoutArray.length; i++) {
-        this.layoutTextureArray.push({
-          id: i,
-          texture: this.textureLoader.load(`./${this.layoutArray[i]}.png`),
-        });
-      }
 
       this.renderer = new THREE.WebGLRenderer({ antialias: true });
       this.renderer.physicallyCorrectLights = true;
@@ -273,25 +278,47 @@ export default {
     },
 
     generateText() {
+      // Remove objects from scene
+      if (this.TextMeshes.name) {
+        this.scene.remove(this.TextMeshes.nb, this.TextMeshes.name);
+        // Dispose old text
+        this.TextMeshes.nb.geometry.dispose();
+        this.TextMeshes.nb.material.dispose();
+        this.TextMeshes.name.geometry.dispose();
+        this.TextMeshes.name.material.dispose();
+      }
 
       // Get content by id
-      let content = this.contentMap.find(data => data.id === this.cardSettings.id);
-      if(content === undefined) throw new Error(`[TARAL] Content with id ${this.cardSettings.id} not found.`)
-      
-      console.log("textContent", content)
+      let contentInfos = this.contentMap.find(
+        (data) => data.id === this.cardSettings.id
+      );
+      if (contentInfos === undefined)
+        throw new Error(
+          `[TARAL] Content with id ${this.cardSettings.id} not found.`
+        );
 
+      let fontInfos = this.fontMap.find(
+        (data) => data.id === this.cardSettings.fontId
+      );
+      if (fontInfos === undefined)
+        throw new Error(
+          `[TARAL] Font with id ${this.cardSettings.fontId} not found.`
+        );
+
+      console.log(fontInfos.name);
       let fontSettings = {
-        font: this.font,
+        font: fontInfos.font,
         size: this.textData.size,
         height: this.textData.height,
         curveSegments: this.textData.curveSegments,
       };
+
       const numberGeometry = new THREE.TextBufferGeometry(
-        content.rNumber,
+        contentInfos.rNumber,
         fontSettings
       );
       const TextBufferGeometry = new THREE.TextBufferGeometry(
-        content.title,
+        contentInfos.title,
         fontSettings
       );
 
@@ -307,32 +334,43 @@ export default {
         new THREE.MeshMatcapMaterial({ map: this.matcap })
       );
 
-      this.TextMeshes.nb.position.z = this.textData.height / 2;
-      this.TextMeshes.name.position.z = this.textData.height / 2;
-      this.TextMeshes.nb.position.y = 2.4;
-      this.TextMeshes.name.position.y = -2.4;
-
       this.TextMeshes.nb.scale.set(this.nbSize, this.nbSize, 1);
       this.TextMeshes.name.scale.set(this.nameSize, this.nameSize, 1);
 
+      this.updateTextPos();
+
       this.scene.add(this.TextMeshes.nb, this.TextMeshes.name);
 
+      console.log("Generate text", this.scene);
       // this.initGUI();
     },
 
     updateCard(alpha) {
       this.shader.material.uniforms["uAlphaMap"].value = alpha;
 
-      // Remove objects from scene
-      this.scene.remove(this.TextMeshes.nb, this.TextMeshes.name);
-      // Dispose old text
-      this.TextMeshes.nb.geometry.dispose();
-      this.TextMeshes.nb.material.dispose();
-      this.TextMeshes.name.geometry.dispose();
-      this.TextMeshes.name.material.dispose();
-
       // generate new texts with store values
       this.generateText();
+    },
+
+    updateTextPos() {
+      let layoutInfos = this.layoutMap.find(
+        (data) => data.id === this.cardSettings.layoutId
+      );
+      if (layoutInfos === undefined)
+        throw new Error(
+          `[TARAL] Layout with id ${this.cardSettings.layoutId} not found.`
+        );
+
+      console.log("Position", layoutInfos.nbPos);
+
+      this.TextMeshes.name.position.z = this.textData.height / 2;
+      this.TextMeshes.name.position.y = -2.4;
+
+      this.TextMeshes.nb.position.set(
+        layoutInfos.nbPos.x,
+        layoutInfos.nbPos.y,
+        this.textData.height / 2
+      );
     },
 
     initGUI() {
