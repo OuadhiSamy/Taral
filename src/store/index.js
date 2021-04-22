@@ -20,8 +20,10 @@ export default new Vuex.Store({
     ],
     fontMap: [
       { id: 0, name: 'Elgoc_Black', prettyName: "Elgoc", font: null },
-      { id: 1, name: 'Helvetica-Neue_Regular', prettyName: "FH Cordelia", font: null },
-      { id: 2, name: 'Authentic', prettyName: "Lydia", font: null }
+      { id: 1, name: 'FH_Cordelia_Regular', prettyName: "FH Cordelia", font: null },
+      { id: 2, name: 'Lydia_Bold', prettyName: "Lydia", font: null },
+      { id: 3, name: 'Kate_Thin', prettyName: "Kate", font: null },
+      { id: 4, name: 'Gilroy_ExtraBold', prettyName: "Gilroy", font: null }
     ],
     cardSettings: {
       id: 19,

@@ -73,7 +73,6 @@ export default {
   }),
   watch: {
     cameraPosition(value) {
-      console.log("Update", value);
       let camera = this.camera;
       let center = new THREE.Vector3(0, 0, 0);
       gsap.to(this.camera.position, {
@@ -143,7 +142,6 @@ export default {
 
         // Progress
         () => {
-          console.log("progress");
         },
 
         // Error
@@ -162,7 +160,7 @@ export default {
       });
 
       this.fontMap.forEach((font) => {
-        this.fontLoader.load(`./${font.name}.json`, (e) => {
+        this.fontLoader.load(`./fonts_json/${font.name}.json`, (e) => {
           font.font = e;
         });
       });
@@ -310,7 +308,6 @@ export default {
           `[TARAL] Font with id ${this.cardSettings.fontId} not found.`
         );
 
-      console.log(fontInfos.name);
       let fontSettings = {
         font: fontInfos.font,
         size: this.textData.size,
@@ -319,7 +316,6 @@ export default {
       };
 
       let number = this.displayMode == 0 ? contentInfos.rNumber : contentInfos.id.toString(); 
-      console.log("Display mode",this.displayMode,number)
       const numberGeometry = new THREE.TextBufferGeometry(
         number,
         fontSettings
@@ -348,7 +344,6 @@ export default {
 
       this.scene.add(this.TextMeshes.nb, this.TextMeshes.name);
 
-      console.log("Generate text", this.scene);
       // this.initGUI();
     },
 
@@ -367,8 +362,6 @@ export default {
         throw new Error(
           `[TARAL] Layout with id ${this.cardSettings.layoutId} not found.`
         );
-
-      console.log("Position", layoutInfos.nbPos);
 
       this.TextMeshes.name.position.z = this.textData.height / 2;
       this.TextMeshes.name.position.y = -2.4;

@@ -32,6 +32,30 @@ export default {
    url(./assets/fonts/Elgoc-Bold.ttf) format("truetype");
 }
 
+@font-face {
+  font-family: "FH Cordelia";
+  src: local("FH Cordelia"),
+   url(./assets/fonts/FHCordelia-Regular.otf) format("truetype");
+}
+
+@font-face {
+  font-family: "Gilroy";
+  src: local("Gilroy"),
+   url(./assets/fonts/Gilroy-ExtraBold.otf) format("truetype");
+}
+
+@font-face {
+  font-family: "Kate";
+  src: local("Kate"),
+   url(./assets/fonts/Kate-Display.otf) format("truetype");
+}
+
+@font-face {
+  font-family: "Lydia";
+  src: local("Lydia"),
+   url(./assets/fonts/LydiaCondensed-Bold.ttf) format("truetype");
+}
+
 @import "./styles/style.scss";
 
 .container {

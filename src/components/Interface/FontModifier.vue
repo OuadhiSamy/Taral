@@ -31,9 +31,15 @@
             class="typograhy-selector__item"
             v-for="font in fontMap"
             :key="font.id"
-            :class="{ active: font.id === fontId }"
+            :class="[
+              {
+                active: font.id === fontId,
+                fz14: font.id === 1 || font.id === 3 || font.id === 4,
+              },
+            ]"
             @click="changeFont(font.id)"
             tabindex="0"
+            :style="{ fontFamily: font.prettyName }"
           >
             {{ font.prettyName }}
           </div>
@@ -112,9 +118,10 @@ export default {
   display: flex;
   position: absolute;
   top: 50%;
-  right: 0;
+  right: 5%;
   transform: translateY(-50%);
   width: 40%;
+  max-width: 468px;
   height: auto;
 
   &__border {
@@ -221,6 +228,10 @@ export default {
     &.active {
       color: $black;
       background: $white;
+    }
+
+    &.fz14 {
+      font-size: 14px;
     }
   }
 }
