@@ -26,12 +26,13 @@ export default {
 </script>
 
 <style lang="scss">
-html,
-body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
+@font-face {
+  font-family: "Elgoc";
+  src: local("Elgoc"),
+   url(./assets/fonts/Elgoc-Bold.ttf) format("truetype");
 }
+
+@import "./styles/style.scss";
 
 .container {
   position: fixed;

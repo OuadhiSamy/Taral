@@ -1,0 +1,27 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: "Elgoc";
+    background: $black;
+}
+
+h1 {
+    font-size: $fz-h1;
+    font-weight: bold;
+    line-height: 1.2;
+    color: $white;
+    margin: 0;
+}
+
+h2 {
+    font-size: $fz-h2;
+    font-weight: bold;
+    line-height: 1.2;
+    color: $white;
+    margin: 0;
+}

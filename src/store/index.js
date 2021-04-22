@@ -19,9 +19,9 @@ export default new Vuex.Store({
       { id: 1, name: 'layout2', nbPos: { x: -1, y: 2.4 }, namePos: { x: -1, y: -2.4 }, texture: null },
     ],
     fontMap: [
-      { id: 0, name: 'Elgoc_Black', font: null },
-      { id: 1, name: 'Helvetica-Neue_Regular', font: null },
-      { id: 2, name: 'Authentic', font: null }
+      { id: 0, name: 'Elgoc_Black', prettyName: "Elgoc", font: null },
+      { id: 1, name: 'Helvetica-Neue_Regular', prettyName: "FH Cordelia", font: null },
+      { id: 2, name: 'Authentic', prettyName: "Lydia", font: null }
     ],
     cardSettings: {
       id: 19,
@@ -30,12 +30,12 @@ export default new Vuex.Store({
       width: 3.8,
       height: 6,
       thickness: 0.05,
+      displayMode: 0,
       text: {
         nb: {
           size: 1,
           height: 1,
           font: "Elgoc",
-          mode: "0"
         },
         name: {
           size: 1,
@@ -66,6 +66,9 @@ export default new Vuex.Store({
     updateScale(state, o) {
       if (o.type === "nb") state.cardSettings.text.nb.size = o.size;
       if (o.type === "name") state.cardSettings.text.name.size = o.size;
+    },
+    updateMode(state, value) {
+      state.cardSettings.displayMode = value;
     }
   },
   actions: {},

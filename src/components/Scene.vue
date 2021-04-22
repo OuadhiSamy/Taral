@@ -43,6 +43,7 @@ export default {
         text: "XIX",
         size: 0.15,
         height: 0.04,
+        // height: 1,
         curveSegments: 12,
         font: "Elgoc",
         weight: "Black",
@@ -68,6 +69,7 @@ export default {
     nbSize: (state) => state.cardSettings.text.nb.size,
     nameSize: (state) => state.cardSettings.text.name.size,
     fontId: (state) => state.cardSettings.fontId,
+    displayMode: (state) => state.cardSettings.displayMode,
   }),
   watch: {
     cameraPosition(value) {
@@ -101,10 +103,13 @@ export default {
     fontId() {
       this.generateText();
     },
+    displayMode() {
+      this.generateText();
+    },
   },
   methods: {
     init() {
-      this.gui = new dat.GUI();
+      // this.gui = new dat.GUI();
       this.clock = new THREE.Clock();
       let container = document.getElementById("container");
 
@@ -120,7 +125,7 @@ export default {
       this.camera.position.set(0, -1, 5);
 
       this.scene = new THREE.Scene();
-      this.scene.background = new THREE.Color(0x3d3d3d);
+      this.scene.background = new THREE.Color(0x141414);
 
       this.controls = new OrbitControls(this.camera, container);
       this.controls.minPolarAngle = Math.PI / 4;
@@ -313,8 +318,10 @@ export default {
         curveSegments: this.textData.curveSegments,
       };
 
+      let number = this.displayMode == 0 ? contentInfos.rNumber : contentInfos.id.toString(); 
+      console.log("Display mode",this.displayMode,number)
       const numberGeometry = new THREE.TextBufferGeometry(
-        contentInfos.rNumber,
+        number,
         fontSettings
       );
       const TextBufferGeometry = new THREE.TextBufferGeometry(
