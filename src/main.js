@@ -3,6 +3,8 @@
 import Vue from "vue";
 import App from "./App.vue";
 import store from "./store";
+import SmoothScrollbar from 'vue-smooth-scrollbar'
+Vue.use(SmoothScrollbar)
 
 Vue.config.productionTip = false;
 

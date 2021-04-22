@@ -1,15 +1,18 @@
 <template>
-  <div class="card-selector">
-    <div class="card-selector__list">
-      <div
-        class="card-selector__item"
-        v-for="card in contentMap"
-        :key="card.id"
-        @click="changeCard(card.id)"
-      >
-        {{ card.id }} - {{ card.name }}
+  <div id="card-selector" class="card-selector">
+    <div class="card-selector__close-button" @click="close()">X</div>
+    <smooth-scrollbar>
+      <div class="card-selector__list">
+        <div
+          class="card-selector__item"
+          v-for="card in contentMap"
+          :key="card.id"
+          @click="changeCard(card.id)"
+        >
+          {{ card.rNumber }} - {{ card.title }}
+        </div>
       </div>
-    </div>
+    </smooth-scrollbar>
   </div>
 </template>
 
@@ -26,6 +29,10 @@ export default {
       console.log(id);
       this.$store.commit("updateAlphaTexture", id);
     },
+    close() {
+      console.log("close")
+      this.$emit('onCloseClicked');
+    }
   },
 };
 </script>
@@ -37,15 +44,73 @@ export default {
   left: 0;
   width: 100%;
   height: 100vh;
-  display: grid;
-  place-items: center;
   z-index: 2;
-  background: rgba(0, 0, 0, 0.6);
+  // background: rgba(0, 0, 0, 0.6);
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 10%;
+  }
+
+  &__close-button {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    color: $white;
+    border: 1px solid $white;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 3;
+    transition: 200ms;
+
+    &:hover {
+      color: $black;
+      background-color: $white;
+    }
+  }
 
   &__item {
     color: white;
-    font-size: 32px;
+    margin-bottom: 32px;
+    font-size: 96px;
+    color: #686868;
     cursor: pointer;
+    transition: 200ms;
+
+    &:first-child {
+      margin-top: 40vh;
+    }
+
+    &:last-child {
+      margin-bottom: 40vh;
+    }
+
+    &:hover {
+      color: $white;
+    }
+
+    @media (max-width: 1600px) {
+      font-size: 70px;
+    }
+
+    @media (max-width: 1300px) {
+      font-size: 63px;
+    }
+
+    @media (max-width: 700px) {
+      font-size: 49px;
+    }
   }
+}
+
+.scrollbar-track {
+  opacity: 0 !important;
 }
 </style>

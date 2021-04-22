@@ -1,5 +1,6 @@
 <template>
   <div class="font-modifier">
+    <div class="card-selector__close-button" @click="close()">X</div>
     <div class="font-modifier__border"></div>
     <div class="font-modifier__wrapper">
       <h1>Font Settings</h1>
@@ -54,7 +55,7 @@
           :min="0"
           :max="2"
           :interval="0.01"
-          @change="onScaleUpdate('nb', nameScale)"
+          @change="onScaleUpdate('name', nameScale)"
         ></vue-slider>
 
         <h2 class="font-modifier__label">Number Size</h2>
@@ -63,7 +64,7 @@
           :min="0"
           :max="2"
           :interval="0.01"
-          @change="onScaleUpdate('name', nbScale)"
+          @change="onScaleUpdate('nb', nbScale)"
         ></vue-slider>
       </div>
     </div>
@@ -105,6 +106,10 @@ export default {
     changeMode(value) {
       this.$store.commit("updateMode", value);
     },
+    close() {
+      console.log("close")
+      this.$emit('onCloseClicked');
+    }
   },
 };
 </script>
