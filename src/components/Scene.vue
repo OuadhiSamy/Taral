@@ -56,7 +56,12 @@ export default {
       },
       font: null,
       matcap: null,
-      gold: { normalMap: null,texture: null, metalnessMap: null, roughnessMap: null },
+      gold: {
+        normalMap: null,
+        texture: null,
+        metalnessMap: null,
+        roughnessMap: null,
+      },
     };
   },
   computed: mapState({
@@ -124,7 +129,7 @@ export default {
         0.01,
         100
       );
-      this.camera.position.set(0, -1, 8);
+      this.camera.position.set(0, -1, 10);
 
       this.scene = new THREE.Scene();
       this.scene.background = new THREE.Color(0x141414);
@@ -137,14 +142,17 @@ export default {
       this.loadingManager = new THREE.LoadingManager(
         // Loaded
         () => {
-          console.log("loaded");
+          this.$store.commit("updateLoadingState", true);
           this.setUpCard();
           this.setUpLights();
           this.generateText();
         },
 
         // Progress
-        () => {},
+        (itemUrl, itemsLoaded, itemsTotal) => {
+          const progressRatio = itemsLoaded / itemsTotal;
+          this.$store.commit("updateLoadPercent", progressRatio);
+        },
 
         // Error
         (err) => {
@@ -227,7 +235,6 @@ export default {
     },
 
     setUpCard() {
-
       /**
        * Card
        */
@@ -295,7 +302,6 @@ export default {
       // const pointLight = new THREE.PointLight(0xcc9200, 1);
       // pointLight.position.set(0, -1.4, 10);
       // this.scene.add(pointLight);
-
 
       // const dirLight0 = new THREE.PointLight(0xffffff, 6);
       // dirLight0.position.set(0, -1,4, 10);
@@ -368,15 +374,9 @@ export default {
 
       TextBufferGeometry.center();
       numberGeometry.center();
-      let matcapMaterial = new THREE.MeshMatcapMaterial({ map: this.matcap })
-      this.textMeshes.nb = new THREE.Mesh(
-        numberGeometry,
-        matcapMaterial
-      );
-      this.textMeshes.name = new THREE.Mesh(
-        TextBufferGeometry,
-        matcapMaterial
-      );
+      let matcapMaterial = new THREE.MeshMatcapMaterial({ map: this.matcap });
+      this.textMeshes.nb = new THREE.Mesh(numberGeometry, matcapMaterial);
+      this.textMeshes.name = new THREE.Mesh(TextBufferGeometry, matcapMaterial);
 
       this.textMeshes.nb.castShadow = true;
 

@@ -5,25 +5,27 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    isSceneLoaded: false,
+    loadPercent: 0,
     numberSize: 1,
     layoutArray: ['layout', 'layout2'],
     layoutTexture: null,
     alphaTexture: null,
     cameraPosition: null,
     contentMap: [
-      // { id: 0, name: 'magician', title: 'The Magician', rNumber: "XIX", texture: null },
-      // { id: 1, name: 'priestess', title: 'The High Priestess', rNumber: "IX", texture: null },
-      // { id: 2, name: 'empress', title: 'The Empress', rNumber: "XIX", texture: null },
-      // { id: 3, name: 'emperor', title: 'The Emperor', rNumber: "IX", texture: null },
-      // { id: 4, name: 'pope', title: 'The Pope', rNumber: "XIX", texture: null },
-      // { id: 5, name: 'lovers', title: 'The Lovers', rNumber: "IX", texture: null },
-      // { id: 6, name: 'chariot', title: 'The Chariot', rNumber: "XIX", texture: null },
-      // { id: 7, name: 'justice', title: 'The Justice', rNumber: "IX", texture: null },
+      { id: 0, name: 'wheel', title: 'The Magician', rNumber: "XIX", texture: null },
+      { id: 1, name: 'wheel', title: 'The High Priestess', rNumber: "IX", texture: null },
+      { id: 2, name: 'wheel', title: 'The Empress', rNumber: "XIX", texture: null },
+      { id: 3, name: 'wheel', title: 'The Emperor', rNumber: "IX", texture: null },
+      { id: 4, name: 'wheel', title: 'The Pope', rNumber: "XIX", texture: null },
+      { id: 5, name: 'wheel', title: 'The Lovers', rNumber: "IX", texture: null },
+      { id: 6, name: 'wheel', title: 'The Chariot', rNumber: "XIX", texture: null },
+      { id: 9, name: 'wheel', title: 'The Wheel of Fortune', rNumber: "X", texture: null },
       { id: 19, name: 'sword', title: 'The Sword', rNumber: "XIX", texture: null },
       { id: 20, name: 'force', title: 'The Force', rNumber: "IX", texture: null },
     ],
     layoutMap: [
-      { id: 0, name: 'layout', nbPos: { x: 1, y: 2.4 }, namePos: { x: 0, y: -2.4 }, texture: null },
+      { id: 0, name: 'layout', nbPos: { x: 0, y: 2.6 }, namePos: { x: 0, y: -2.4 }, texture: null },
       { id: 1, name: 'layout2', nbPos: { x: 0, y: 2.4 }, namePos: { x: 0, y: -2.4 }, texture: null },
     ],
     fontMap: [
@@ -54,9 +56,14 @@ export default new Vuex.Store({
       }
     },
   },
-  getters: {
-  },
+  getters: {},
   mutations: {
+    updateLoadPercent(state, value) {
+      state.loadPercent = value;
+    },
+    updateLoadingState(state, value) {
+      state.isSceneLoaded = value;
+    },
     updateCamera(state, value) {
       state.cameraPosition = value;
     },

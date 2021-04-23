@@ -45,7 +45,7 @@ export default {
   left: 0px;
   width: 100%;
   height: 100vh;
-  background-color: rbga(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.6);
 
   &__list {
     display: flex;

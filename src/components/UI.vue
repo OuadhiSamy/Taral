@@ -1,13 +1,16 @@
 <template>
   <div id="UI">
+    <transition name="fade">
+      <loading v-if="!isSceneLoaded" />
+    </transition>
     <transition @enter="closeEnter" @leave="closeLeave">
       <div class="close-button" v-if="currentPanel !== ''" @click="close()">
         X
       </div>
     </transition>
-    
+
     <transition @enter="navEnter" @leave="navLeave">
-      <nav id="nav" class="nav" v-if="currentPanel === ''">
+      <nav id="nav" class="nav" v-if="currentPanel === '' && isSceneLoaded">
         <div class="nav__item" @click="currentPanel = 'arcane-selector'">
           Arcane
         </div>
@@ -44,9 +47,11 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import LayoutSelector from "./Interface/LayoutSelector.vue";
 import ArcaneSelector from "./Interface/ArcaneSelector.vue";
 import FontModifier from "./Interface/FontModifier.vue";
+import Loading from "./Interface/Loading.vue"; 
 
 import { gsap } from "gsap";
 
@@ -56,12 +61,16 @@ export default {
     LayoutSelector,
     ArcaneSelector,
     FontModifier,
+    Loading,
   },
   data() {
     return {
       currentPanel: "",
     };
   },
+  computed: mapState({
+    isSceneLoaded: "isSceneLoaded",
+  }),
   methods: {
     close() {
       this.currentPanel = "";
