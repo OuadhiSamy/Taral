@@ -8,6 +8,7 @@ import { mapState } from "vuex";
 import * as THREE from "three";
 import * as dat from "dat.gui";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
@@ -32,6 +33,7 @@ export default {
       shader: null,
       aspect: null,
       loadingManager: null,
+      glftLoader: null,
       textureLoader: null,
       fontLoader: null,
       sizes: {
@@ -42,13 +44,13 @@ export default {
         // TODO : move needed to store
         text: "XIX",
         size: 0.15,
-        height: 0.04,
+        height: 0.01,
         // height: 1,
         curveSegments: 12,
         font: "Elgoc",
         weight: "Black",
       },
-      TextMeshes: {
+      textMeshes: {
         nb: null,
         name: null,
       },
@@ -94,10 +96,10 @@ export default {
       this.updateTextPos();
     },
     nbSize(value) {
-      this.TextMeshes.nb.scale.set(value, value, 1);
+      this.textMeshes.nb.scale.set(value, value, 1);
     },
     nameSize(value) {
-      this.TextMeshes.name.scale.set(value, value, 1);
+      this.textMeshes.name.scale.set(value, value, 1);
     },
     fontId() {
       this.generateText();
@@ -116,7 +118,7 @@ export default {
       this.sizes.height = window.innerWidth;
 
       this.camera = new THREE.PerspectiveCamera(
-        75,
+        45,
         this.sizes.width / this.sizes.height,
         0.01,
         100
@@ -141,8 +143,7 @@ export default {
         },
 
         // Progress
-        () => {
-        },
+        () => {},
 
         // Error
         (err) => {
@@ -150,8 +151,14 @@ export default {
         }
       );
 
+      this.glftLoader = new GLTFLoader(this.loadingManager);
       this.textureLoader = new THREE.TextureLoader(this.loadingManager);
       this.fontLoader = new THREE.FontLoader(this.loadingManager);
+
+      this.glftLoader.load("./models/card.glb", (gltf) => {
+        const children = [...gltf.scene.children];
+        this.card = children[1];
+      });
 
       this.contentMap.forEach((content) => {
         content.texture = this.textureLoader.load(
@@ -165,8 +172,6 @@ export default {
         });
       });
 
-      console.log("FontMap", this.fontMap);
-
       this.layoutMap.forEach((layout) => {
         layout.texture = this.textureLoader.load(`./${layout.name}.png`);
       });
@@ -178,50 +183,51 @@ export default {
       this.renderer.outputEncoding = THREE.sRGBEncoding;
       this.renderer.toneMapping = THREE.ReinhardToneMapping;
       this.renderer.toneMappingExposure = 1.5;
+      this.renderer.shadowMap.enabled = true;
       this.renderer.setSize(this.sizes.width, this.sizes.height);
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       container.appendChild(this.renderer.domElement);
 
-      // /**
-      //  * Post processing
-      //  */
-      // // Renderer target
-      // const renderTarget = new THREE.WebGLMultisampleRenderTarget(800, 600, {
-      //   minFilter: THREE.LinearFilter,
-      //   maxFilter: THREE.LinearFilter,
-      //   format: THREE.RGBAFormat,
-      //   encoding: THREE.sRGBEncoding,
-      // });
+      /**
+       * Post processing
+       */
+      // Renderer target
+      const renderTarget = new THREE.WebGLMultisampleRenderTarget(800, 600, {
+        minFilter: THREE.LinearFilter,
+        maxFilter: THREE.LinearFilter,
+        format: THREE.RGBAFormat,
+        encoding: THREE.sRGBEncoding,
+      });
 
-      // // Composer
-      // this.effectComposer = new EffectComposer(this.renderer, renderTarget);
-      // this.effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      // this.effectComposer.setSize(this.sizes.width, this.sizes.height);
+      // Composer
+      this.effectComposer = new EffectComposer(this.renderer, renderTarget);
+      this.effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      this.effectComposer.setSize(this.sizes.width, this.sizes.height);
 
-      // // Passes
-      // const renderPass = new RenderPass(this.scene, this.camera);
-      // this.effectComposer.addPass(renderPass);
+      // Passes
+      const renderPass = new RenderPass(this.scene, this.camera);
+      this.effectComposer.addPass(renderPass);
 
-      // const smaaPass = new SMAAPass();
-      // smaaPass.enabled = false;
-      // this.effectComposer.addPass(smaaPass);
+      const smaaPass = new SMAAPass();
+      smaaPass.enabled = false;
+      this.effectComposer.addPass(smaaPass);
     },
 
     setUpCard() {
       /**
        * Card
        */
-      this.card = new THREE.Mesh(
-        new THREE.BoxBufferGeometry(3.8, 6, 0.05),
-        new THREE.MeshPhysicalMaterial({
-          color: 0x000000,
-          metalness: 0,
-          roughness: 1,
-          clearcoat: 0.5,
-          clearcoatRoughness: 0.5,
-        })
-      );
-
+      // this.card = new THREE.Mesh(
+      //   new THREE.BoxBufferGeometry(3.8, 6, 0.05),
+      //   new THREE.MeshPhysicalMaterial({
+      //     color: 0x000000,
+      //     metalness: 0,
+      //     roughness: 1,
+      //     clearcoat: 0.5,
+      //     clearcoatRoughness: 0.5,
+      //   })
+      // );
+      this.card.receiveShadow = true;
       this.card.position.set(0, 0, 0);
       this.scene.add(this.card);
 
@@ -231,9 +237,10 @@ export default {
       this.$store.commit("updateLayoutTexture", 1);
       this.layout = new THREE.Mesh(
         new THREE.PlaneBufferGeometry(6, 6),
-        new THREE.MeshBasicMaterial({
+        new THREE.MeshStandardMaterial({
           color: 0xffffff,
           map: this.layoutTexture,
+          // roughnessMap: this.layoutTexture,
           transparent: true,
         })
       );
@@ -271,24 +278,44 @@ export default {
       const ambientLight = new THREE.AmbientLight(0xffffff, 10);
       this.scene.add(ambientLight);
 
-      const pointLight = new THREE.PointLight(0xcc9200, 1);
-      pointLight.position.set(0, -1.4, 10);
-      this.scene.add(pointLight);
+      // const pointLight = new THREE.PointLight(0xcc9200, 1);
+      // pointLight.position.set(0, -1.4, 10);
+      // this.scene.add(pointLight);
 
-      const dirLight = new THREE.PointLight(0xffffff, 0.2);
-      dirLight.position.set(20, -0.3, -7.2);
+
+      const dirLight0 = new THREE.PointLight(0xffffff, 6);
+      dirLight0.position.set(0, -1,4, 10);
+      this.scene.add(dirLight0);
+
+      const dirLight = new THREE.PointLight(0xffffff, 6);
+      dirLight.castShadow = true;
+      dirLight.shadow.mapSize.width = 1024*2;
+      dirLight.shadow.mapSize.height = 1024*2;
+      dirLight.position.set(3, 2, 1);
       this.scene.add(dirLight);
+
+      // const folder = this.gui.addFolder("Light");
+      // folder.add(ambientLight, "intensity", 0, 100, 1).name("ambI");
+      // folder.add(dirLight, "intensity", 0, 100, 1).name("pI");
+      // folder.add(ambientLight, "intensity", -3, 3, 0.1);
+    },
+
+    updateCard(alpha) {
+      this.shader.material.uniforms["uAlphaMap"].value = alpha;
+
+      // generate new texts with store values
+      this.generateText();
     },
 
     generateText() {
       // Remove objects from scene
-      if (this.TextMeshes.name) {
-        this.scene.remove(this.TextMeshes.nb, this.TextMeshes.name);
+      if (this.textMeshes.name) {
+        this.scene.remove(this.textMeshes.nb, this.textMeshes.name);
         // Dispose old text
-        this.TextMeshes.nb.geometry.dispose();
-        this.TextMeshes.nb.material.dispose();
-        this.TextMeshes.name.geometry.dispose();
-        this.TextMeshes.name.material.dispose();
+        this.textMeshes.nb.geometry.dispose();
+        this.textMeshes.nb.material.dispose();
+        this.textMeshes.name.geometry.dispose();
+        this.textMeshes.name.material.dispose();
       }
 
       // Get content by id
@@ -315,11 +342,11 @@ export default {
         curveSegments: this.textData.curveSegments,
       };
 
-      let number = this.displayMode == 0 ? contentInfos.rNumber : contentInfos.id.toString(); 
-      const numberGeometry = new THREE.TextBufferGeometry(
-        number,
-        fontSettings
-      );
+      let number =
+        this.displayMode == 0
+          ? contentInfos.rNumber
+          : contentInfos.id.toString();
+      const numberGeometry = new THREE.TextBufferGeometry(number, fontSettings);
       const TextBufferGeometry = new THREE.TextBufferGeometry(
         contentInfos.title,
         fontSettings
@@ -328,30 +355,25 @@ export default {
       TextBufferGeometry.center();
       numberGeometry.center();
 
-      this.TextMeshes.nb = new THREE.Mesh(
+      this.textMeshes.nb = new THREE.Mesh(
         numberGeometry,
         new THREE.MeshMatcapMaterial({ map: this.matcap })
       );
-      this.TextMeshes.name = new THREE.Mesh(
+      this.textMeshes.name = new THREE.Mesh(
         TextBufferGeometry,
         new THREE.MeshMatcapMaterial({ map: this.matcap })
       );
 
-      this.TextMeshes.nb.scale.set(this.nbSize, this.nbSize, 1);
-      this.TextMeshes.name.scale.set(this.nameSize, this.nameSize, 1);
+      this.textMeshes.nb.castShadow = true;
+
+      this.textMeshes.nb.scale.set(this.nbSize, this.nbSize, 1);
+      this.textMeshes.name.scale.set(this.nameSize, this.nameSize, 1);
 
       this.updateTextPos();
 
-      this.scene.add(this.TextMeshes.nb, this.TextMeshes.name);
+      this.scene.add(this.textMeshes.nb, this.textMeshes.name);
 
       // this.initGUI();
-    },
-
-    updateCard(alpha) {
-      this.shader.material.uniforms["uAlphaMap"].value = alpha;
-
-      // generate new texts with store values
-      this.generateText();
     },
 
     updateTextPos() {
@@ -363,13 +385,19 @@ export default {
           `[TARAL] Layout with id ${this.cardSettings.layoutId} not found.`
         );
 
-      this.TextMeshes.name.position.z = this.textData.height / 2;
-      this.TextMeshes.name.position.y = -2.4;
+      // this.textMeshes.name.position.z = 0.057;
+      // this.textMeshes.name.position.y = -2.4;
 
-      this.TextMeshes.nb.position.set(
+      this.textMeshes.name.position.set(
+        layoutInfos.namePos.x,
+        layoutInfos.namePos.y,
+        0.057
+      );
+
+      this.textMeshes.nb.position.set(
         layoutInfos.nbPos.x,
         layoutInfos.nbPos.y,
-        this.textData.height / 2
+        0.057
       );
     },
 

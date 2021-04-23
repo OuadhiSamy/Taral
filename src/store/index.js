@@ -11,20 +11,20 @@ export default new Vuex.Store({
     alphaTexture: null,
     cameraPosition: null,
     contentMap: [
-      { id: 0, name: 'magician', title: 'The Magician', rNumber: "XIX", texture: null },
-      { id: 1, name: 'priestess', title: 'The High Priestess', rNumber: "IX", texture: null },
-      { id: 2, name: 'empress', title: 'The Empress', rNumber: "XIX", texture: null },
-      { id: 3, name: 'emperor', title: 'The Emperor', rNumber: "IX", texture: null },
-      { id: 4, name: 'pope', title: 'The Pope', rNumber: "XIX", texture: null },
-      { id: 5, name: 'lovers', title: 'The Lovers', rNumber: "IX", texture: null },
-      { id: 6, name: 'chariot', title: 'The Chariot', rNumber: "XIX", texture: null },
-      { id: 7, name: 'justice', title: 'The Justice', rNumber: "IX", texture: null },
+      // { id: 0, name: 'magician', title: 'The Magician', rNumber: "XIX", texture: null },
+      // { id: 1, name: 'priestess', title: 'The High Priestess', rNumber: "IX", texture: null },
+      // { id: 2, name: 'empress', title: 'The Empress', rNumber: "XIX", texture: null },
+      // { id: 3, name: 'emperor', title: 'The Emperor', rNumber: "IX", texture: null },
+      // { id: 4, name: 'pope', title: 'The Pope', rNumber: "XIX", texture: null },
+      // { id: 5, name: 'lovers', title: 'The Lovers', rNumber: "IX", texture: null },
+      // { id: 6, name: 'chariot', title: 'The Chariot', rNumber: "XIX", texture: null },
+      // { id: 7, name: 'justice', title: 'The Justice', rNumber: "IX", texture: null },
       { id: 19, name: 'sword', title: 'The Sword', rNumber: "XIX", texture: null },
       { id: 20, name: 'force', title: 'The Force', rNumber: "IX", texture: null },
     ],
     layoutMap: [
       { id: 0, name: 'layout', nbPos: { x: 1, y: 2.4 }, namePos: { x: 0, y: -2.4 }, texture: null },
-      { id: 1, name: 'layout2', nbPos: { x: -1, y: 2.4 }, namePos: { x: -1, y: -2.4 }, texture: null },
+      { id: 1, name: 'layout2', nbPos: { x: 0, y: 2.4 }, namePos: { x: 0, y: -2.4 }, texture: null },
     ],
     fontMap: [
       { id: 0, name: 'Elgoc_Black', prettyName: "Elgoc", font: null },
@@ -39,7 +39,6 @@ export default new Vuex.Store({
       fontId: 0,
       width: 3.8,
       height: 6,
-      thickness: 0.05,
       displayMode: 0,
       text: {
         nb: {

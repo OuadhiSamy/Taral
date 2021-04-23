@@ -1,7 +1,7 @@
 <template>
   <div id="UI">
     <nav class="nav" v-if="currentPanel === ''">
-      <div class="nav__item" @click="currentPanel = 'card-selector'">Card</div>
+      <div class="nav__item" @click="currentPanel = 'card-selector'">Arcane</div>
       <div class="nav__item" @click="currentPanel = 'font-settings'">Font</div>
       <div class="nav__item">Layout</div>
     </nav>
