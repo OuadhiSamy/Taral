@@ -56,6 +56,7 @@ export default {
       },
       font: null,
       matcap: null,
+      gold: { normalMap: null,texture: null, metalnessMap: null, roughnessMap: null },
     };
   },
   computed: mapState({
@@ -123,7 +124,7 @@ export default {
         0.01,
         100
       );
-      this.camera.position.set(0, -1, 5);
+      this.camera.position.set(0, -1, 8);
 
       this.scene = new THREE.Scene();
       this.scene.background = new THREE.Color(0x141414);
@@ -160,6 +161,20 @@ export default {
         this.card = children[1];
       });
 
+      this.matcap = this.textureLoader.load("./matcap.jpg");
+      // this.gold.normalMap = this.textureLoader.load(
+      //   "./textures/gold/gold_normal.png"
+      // );
+      // this.gold.texture = this.textureLoader.load(
+      //   "./textures/gold/gold_texture.png"
+      // );
+      // this.gold.metalnessMap = this.textureLoader.load(
+      //   "./textures/gold/gold_metalness.png"
+      // );
+      // this.gold.roughnessMap = this.textureLoader.load(
+      //   "./textures/gold/gold_roughness.png"
+      // );
+
       this.contentMap.forEach((content) => {
         content.texture = this.textureLoader.load(
           `./${content.name}_alpha.png`
@@ -175,8 +190,6 @@ export default {
       this.layoutMap.forEach((layout) => {
         layout.texture = this.textureLoader.load(`./${layout.name}.png`);
       });
-
-      this.matcap = this.textureLoader.load("./matcap.jpg");
 
       this.renderer = new THREE.WebGLRenderer({ antialias: true });
       this.renderer.physicallyCorrectLights = true;
@@ -214,6 +227,7 @@ export default {
     },
 
     setUpCard() {
+
       /**
        * Card
        */
@@ -283,14 +297,14 @@ export default {
       // this.scene.add(pointLight);
 
 
-      const dirLight0 = new THREE.PointLight(0xffffff, 6);
-      dirLight0.position.set(0, -1,4, 10);
-      this.scene.add(dirLight0);
+      // const dirLight0 = new THREE.PointLight(0xffffff, 6);
+      // dirLight0.position.set(0, -1,4, 10);
+      // this.scene.add(dirLight0);
 
       const dirLight = new THREE.PointLight(0xffffff, 6);
       dirLight.castShadow = true;
-      dirLight.shadow.mapSize.width = 1024*2;
-      dirLight.shadow.mapSize.height = 1024*2;
+      dirLight.shadow.mapSize.width = 1024 * 2;
+      dirLight.shadow.mapSize.height = 1024 * 2;
       dirLight.position.set(3, 2, 1);
       this.scene.add(dirLight);
 
@@ -354,14 +368,14 @@ export default {
 
       TextBufferGeometry.center();
       numberGeometry.center();
-
+      let matcapMaterial = new THREE.MeshMatcapMaterial({ map: this.matcap })
       this.textMeshes.nb = new THREE.Mesh(
         numberGeometry,
-        new THREE.MeshMatcapMaterial({ map: this.matcap })
+        matcapMaterial
       );
       this.textMeshes.name = new THREE.Mesh(
         TextBufferGeometry,
-        new THREE.MeshMatcapMaterial({ map: this.matcap })
+        matcapMaterial
       );
 
       this.textMeshes.nb.castShadow = true;

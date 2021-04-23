@@ -25,3 +25,26 @@ h2 {
     color: $white;
     margin: 0;
 }
+
+.close-button {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    color: $white;
+    border: 1px solid $white;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0;
+    z-index: 3;
+    transition: 200ms;
+
+    &:hover {
+      color: $black;
+      background-color: $white;
+    }
+  }

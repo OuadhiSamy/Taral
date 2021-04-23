@@ -1,10 +1,9 @@
 <template>
   <div class="font-modifier">
-    <div class="card-selector__close-button" @click="close()">X</div>
     <div class="font-modifier__border"></div>
     <div class="font-modifier__wrapper">
-      <h1>Font Settings</h1>
-      <div class="display-mode font-modifier__container">
+      <h1 class="font-anim">Font Settings</h1>
+      <div class="display-mode font-modifier__container font-anim">
         <h2 class="font-modifier__label">Number display mode</h2>
         <div class="display-mode__container">
           <div
@@ -25,7 +24,7 @@
         </div>
       </div>
 
-      <div class="typograhy-selector font-modifier__container">
+      <div class="typograhy-selector font-modifier__container font-anim">
         <h2 class="font-modifier__label">Typography</h2>
         <div class="typography-selector__list">
           <div
@@ -47,7 +46,7 @@
         </div>
       </div>
 
-      <div class="font-modifier__container">
+      <div class="font-modifier__container font-anim">
         <h2 class="font-modifier__label">Title Size</h2>
         <vue-slider
           class="mb"
@@ -106,10 +105,6 @@ export default {
     changeMode(value) {
       this.$store.commit("updateMode", value);
     },
-    close() {
-      console.log("close")
-      this.$emit('onCloseClicked');
-    }
   },
 };
 </script>
@@ -131,6 +126,7 @@ export default {
 
   &__border {
     width: 1px;
+    min-width: 1px;
     background: linear-gradient(
       180deg,
       #ffffff 0%,

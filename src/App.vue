@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <button class="test-button" @click="updateCamera">ZoomIn</button>
     <Scene />
     <UI />
   </div>

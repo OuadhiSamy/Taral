@@ -1,10 +1,9 @@
 <template>
-  <div id="card-selector" class="card-selector">
-    <div class="card-selector__close-button" @click="close()">X</div>
+  <div id="arcane-selector" class="arcane-selector">
     <smooth-scrollbar>
-      <div class="card-selector__list">
+      <div class="arcane-selector__list">
         <div
-          class="card-selector__item"
+          class="arcane-selector__item"
           v-for="card in contentMap"
           :key="card.id"
           @click="changeCard(card.id)"
@@ -20,7 +19,7 @@
 import { mapState } from "vuex";
 
 export default {
-  name: "CardSelector",
+  name: "ArcaneSelector",
   computed: mapState({
     contentMap: "contentMap",
   }),
@@ -29,16 +28,12 @@ export default {
       console.log(id);
       this.$store.commit("updateAlphaTexture", id);
     },
-    close() {
-      console.log("close")
-      this.$emit('onCloseClicked');
-    }
   },
 };
 </script>
 
 <style lang="scss">
-.card-selector {
+.arcane-selector {
   position: absolute;
   top: 0;
   left: 0;
@@ -52,28 +47,6 @@ export default {
     flex-direction: column;
     align-items: flex-start;
     margin-left: 10%;
-  }
-
-  &__close-button {
-    position: absolute;
-    top: 40px;
-    right: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 40px;
-    height: 40px;
-    color: $white;
-    border: 1px solid $white;
-    border-radius: 50%;
-    cursor: pointer;
-    z-index: 3;
-    transition: 200ms;
-
-    &:hover {
-      color: $black;
-      background-color: $white;
-    }
   }
 
   &__item {
